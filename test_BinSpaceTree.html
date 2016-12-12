@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Testing BinSpaceTree</title>
+    <style type="text/css">
+        #demo {
+            border: 1px solid black;
+        }
+    </style>
+    <script src="BinSpaceTree.js"></script>
+    <script>
+        var tree;
+
+        function ready() {
+            var c = document.getElementById("demo");
+            var ctx = c.getContext("2d");
+
+            tree = new cs.BinSpaceTree(new cs.Rect(0, 512, 0, 512), 10);
+
+            var left, right, top, bottom;
+            for (var i=0; i<5000; i++) {
+                left = Math.random() * ctx.canvas.width;
+                bottom = Math.random() * ctx.canvas.height;
+                right = left + Math.random() * 10;
+                top = bottom + Math.random() * 10;
+
+                tree.insert(new cs.Rect(left, right, bottom, top), "A");
+            }
+
+            console.log(tree);
+
+            var x = 30;
+            var y = 0;
+            var dx = 1.3;
+            var dy = 1.7;
+
+            ctx.font = "20px Arial";
+            var anim_func = function() {
+                requestAnimationFrame(anim_func, 1000/60);
+
+                var left, right, top, bottom;
+                left = Math.random() * ctx.canvas.width;
+                bottom = Math.random() * ctx.canvas.height;
+                right = left + Math.random() * 20;
+                top = bottom + Math.random() * 20;
+
+                tree.insert(new cs.Rect(left, right, bottom, top), undefined);
+
+                x += dx;
+                y += dy;
+
+                if (x < 0 || x > c.width) {
+                    dx = -dx;
+                    x += dx;
+                }
+
+                if (y < 0 || y > c.height) {
+                    dy = -dy;
+                    y += dy;
+                }
+
+                ctx.clearRect(0, 0, c.width, c.height);
+                tree.debugDraw(ctx);
+
+                var over_rect = new cs.Rect(x-25, x+25, y-25, y+25);
+                ctx.strokeStyle = "#009900";
+                over_rect.draw2d(ctx);
+
+                // Draw rectangles that potentially overlap the query rectangle.
+                ctx.strokeStyle = "#ff0000";
+                var overlap = tree.findPotentialOverlapping(over_rect);
+                for (var i=0; i<overlap.length; i++) {
+                    overlap[i][0].draw2d(ctx);
+                }
+                ctx.stroke();
+
+                // Draw rectangles that actually do overlap query rectangle.
+                ctx.strokeStyle = "#0000ff";
+                var overlap = tree.findOverlapping(over_rect);
+                for (var i=0; i<overlap.length; i++) {
+                    overlap[i][0].draw2d(ctx);
+                    if (Math.random() < 0.1)
+                        tree.remove(overlap[i][0]);
+                }
+                ctx.stroke();
+
+                // Draw selection count
+                ctx.fillText(String(overlap.length) + " / " + String(tree.count()), 5, 20);
+            };
+
+            anim_func();
+        }
+    </script>
+</head>
+<body onload="ready();">
+    <canvas id="demo" width="512px" height="512px"></canvas>
+    <ul>
+        <li>Gray - Rectangles.</li>
+        <li>Red - To check for overlap.</li>
+        <li>Blue - Overlapping.</li>
+    </ul>
+</body>
+</html>
