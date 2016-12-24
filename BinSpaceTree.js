@@ -33,11 +33,10 @@ cs.Rect = function(left, right, bottom, top) {
 /**
  * Copies a rectangle.
  *
- * @param rect rectangle to copy.
  * @returns {cs.Rect}
  */
-cs.Rect.prototype.copy = function(rect) {
-    return new cs.Rect(rect.left, rect.right, rect.bottom, rect.top);
+cs.Rect.prototype.copy = function() {
+    return new cs.Rect(this.left, this.right, this.bottom, this.top);
 };
 
 
@@ -336,6 +335,7 @@ cs.BinSpaceNode.prototype.debugDraw = function(ctx) {
  * @constructor
  */
 cs.BinSpaceTree = function(rect, max_depth) {
+    this.rect = rect;
     this.max_depth = max_depth;
     this.root_node = new cs.BinSpaceNode(undefined, rect, max_depth);
 };
